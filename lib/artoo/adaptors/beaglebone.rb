@@ -37,7 +37,7 @@ module Artoo
       end
 
       def digital_write controller, val
-        pin = translate_pin controller
+        pin = beaglebone_pin controller, :out
         File.open(value_file pin, 'w') {|f| f.write(val == :high ? "1" : "0") } if File.open(direction_file pin, 'r').read.to_sym == :out
       end
 
@@ -65,10 +65,11 @@ module Artoo
         return pin
       end
 
-      def beaglebone_pin pin, direction
-        pin = translate_pin pin
+      def beaglebone_pin controller, direction
+        pin = translate_pin controller
         File.open("/sys/class/gpio/export", "w") { |f| f.write("#{pin}") }
         File.open(direction_file pin, "w") { |f| f.write(direction == :out ? "out" : "in") }
+        return pin
       end
 
       def direction_file pin
