@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Adrian Zankich"]
   s.email       = ["artoo@hybridgroup.com"]
   s.homepage    = "http://artoo.io"
-  s.summary     = %q{Artoo adaptor and driver for Beaglebone}
-  s.description = %q{Artoo adaptor and driver for Beaglebone}
+  s.summary     = %q{Artoo adaptor for Beaglebone}
+  s.description = %q{Artoo adaptor for Beaglebone}
 
   s.rubyforge_project = "artoo-beaglebone"
 
@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_runtime_dependency 'artoo', '~> 1.2.1'
+  s.add_runtime_dependency 'artoo-gpio', '~> 0.2.0'
   # TODO: add your development dependencies here
   # EXAMPLE:
   # s.add_development_dependency 'minitest', '~> 5.0'
