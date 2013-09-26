@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'artoo', '~> 1.2.1'
   s.add_runtime_dependency 'artoo-gpio', '~> 0.2.0'
+  s.add_runtime_dependency 'artoo-i2c', '~> 0.2.0'
   # TODO: add your development dependencies here
   # EXAMPLE:
   # s.add_development_dependency 'minitest', '~> 5.0'

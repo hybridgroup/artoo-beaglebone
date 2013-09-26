@@ -5,6 +5,8 @@ module Artoo
     # Connect to a beaglebone device
     # @see device documentation for more information
     class Beaglebone < Adaptor
+
+      attr_reader :i2c_address
       PINS = {
         :P8_3 => 38,
         :P8_4 => 39,
@@ -113,6 +115,24 @@ module Artoo
         (File.open(value_file(pin), 'r').read == :high ? "1" : "0")
       end
 
+      def i2c_start address
+        @i2c_address = address
+        i2c_write @i2c_address, 0x00, 0x00
+      end
+
+      def i2c_write *data
+        ret = [@i2c_address.pack("v")[0]]
+        data.each do |n|
+          ret.push([n].pack("v")[0])
+          ret.push([n].pack("v")[1])
+        end
+        File.open(i2c2_file, 'r+') {|f| f.write(*ret)}
+      end
+
+      def i2c_read len
+        File.open(i2c2_file, 'r') {|f| f.read(6)}
+      end 
+
       private
 
       def translate_pin pin
@@ -136,6 +156,10 @@ module Artoo
 
       def value_file pin
         "/sys/class/gpio/gpio#{pin}/value"
+      end
+
+      def i2c2_file
+        "/dev/i2c-1"
       end
 
     end
