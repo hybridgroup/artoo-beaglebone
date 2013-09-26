@@ -130,7 +130,7 @@ module Artoo
       end
 
       def i2c_read len
-        File.open(i2c2_file, 'r') {|f| f.read(6)}
+        File.open(i2c2_file, 'r') {|f| f.read(len)}
       end 
 
       private
