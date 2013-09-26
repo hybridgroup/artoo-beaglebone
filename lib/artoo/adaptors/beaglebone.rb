@@ -38,12 +38,12 @@ module Artoo
 
       def digital_write controller, val
         pin = beaglebone_pin controller, :out
-        File.open(value_file pin, 'w') {|f| f.write(val == :high ? "1" : "0") } if File.open(direction_file pin, 'r').read.to_sym == :out
+        File.open(value_file(pin), 'w') {|f| f.write(val == :high ? "1" : "0") }
       end
 
       def digital_read controller
         pin = translate_pin controller
-        (File.open(value_file pin, 'r').read == :high ? "1" : "0") if File.open(direction_file pin, 'r').read.to_sym == :out
+        (File.open(value_file(pin), 'r').read == :high ? "1" : "0")
       end
 
       private
@@ -68,7 +68,7 @@ module Artoo
       def beaglebone_pin controller, direction
         pin = translate_pin controller
         File.open("/sys/class/gpio/export", "w") { |f| f.write("#{pin}") }
-        File.open(direction_file pin, "w") { |f| f.write(direction == :out ? "out" : "in") }
+        File.open(direction_file(pin), "w") { |f| f.write(direction == :out ? "out" : "in") }
         return pin
       end
 
