@@ -6,7 +6,8 @@ module Artoo
     # @see device documentation for more information
     class Beaglebone < Adaptor
 
-      attr_reader :i2c_address
+      attr_reader :i2c_address, :i2c_handle
+      I2C_SLAVE = 0x0703
       PINS = {
         :P8_3 => 38,
         :P8_4 => 39,
@@ -117,27 +118,34 @@ module Artoo
 
       def i2c_start address
         @i2c_address = address
-        i2c_write @i2c_address, 0x00, 0x00
+        @i2c_handle = File.open(i2c2_file, 'r+')
+        @i2c_handle.ioctl(I2C_SLAVE, @i2c_address)
+
+        i2c_write 0
       end
 
       def i2c_write *data
-        ret = [@i2c_address.pack("v")[0]]
+        ret = ""
+        ret.force_encoding("US-ASCII")
         data.each do |n|
-          ret.push([n].pack("v")[0])
-          ret.push([n].pack("v")[1])
+          ret << [n].pack("v")[0]
+          ret << [n].pack("v")[1]
         end
-        File.open(i2c2_file, 'r+') {|f| f.write(*ret)}
+        @i2c_handle.write(ret)
       end
 
       def i2c_read len
-        File.open(i2c2_file, 'r') {|f| f.read(len)}
-      end 
+        begin
+          @i2c_handle.read_nonblock(len).unpack("C#{len}")
+        rescue Exception => e
+        end
+      end
 
       private
 
       def translate_pin pin
         begin
-          PINS.fetch(pin.upcase.to_sym) 
+          PINS.fetch(pin.upcase.to_sym)
         rescue Exception => e
           raise "Not a valid pin"
         end
@@ -161,7 +169,6 @@ module Artoo
       def i2c2_file
         "/dev/i2c-1"
       end
-
     end
   end
 end
