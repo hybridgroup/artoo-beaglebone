@@ -1,13 +1,12 @@
 require 'artoo/adaptors/adaptor'
+require 'artoo/adaptors/io'
 
 module Artoo
   module Adaptors
     # Connect to a beaglebone device
     # @see device documentation for more information
     class Beaglebone < Adaptor
-
-      attr_reader :i2c_address, :i2c_handle
-      I2C_SLAVE = 0x0703
+      include Artoo::Adaptors::IO
       PINS = {
         :P8_3 => 38,
         :P8_4 => 39,
@@ -76,6 +75,7 @@ module Artoo
         :P9_31 => 110
       }
       finalizer :finalize
+      attr_reader :pins, :i2c
 
       # Closes connection with device if connected
       # @return [Boolean]
@@ -107,38 +107,25 @@ module Artoo
       end
 
       def digital_write pin, val
-        pin = beaglebone_pin pin, :out
-        File.open(value_file(pin), 'w') {|f| f.write(val == :high ? "1" : "0") }
+        pin = beaglebone_pin(pin, "w")
+        pin.digital_write(val)
       end
 
       def digital_read pin
-        pin = translate_pin pin
-        (File.open(value_file(pin), 'r').read == :high ? "1" : "0")
+        pin = beaglebone_pin(pin, "r")
+        pin.digital_read
       end
 
       def i2c_start address
-        @i2c_address = address
-        @i2c_handle = File.open(i2c2_file, 'r+')
-        @i2c_handle.ioctl(I2C_SLAVE, @i2c_address)
-
-        i2c_write 0
+         @i2c = I2c.new i2c2_file, address
       end
 
       def i2c_write *data
-        ret = ""
-        ret.force_encoding("US-ASCII")
-        data.each do |n|
-          ret << [n].pack("v")[0]
-          ret << [n].pack("v")[1]
-        end
-        @i2c_handle.write(ret)
+        @i2c.write *data
       end
 
       def i2c_read len
-        begin
-          @i2c_handle.read_nonblock(len).unpack("C#{len}")
-        rescue Exception => e
-        end
+        @i2c.read len
       end
 
       private
@@ -151,19 +138,11 @@ module Artoo
         end
       end
 
-      def beaglebone_pin pin, direction
+      def beaglebone_pin pin, mode
+        @pins = [] if @pins.nil?
         pin = translate_pin pin
-        File.open("/sys/class/gpio/export", "w") { |f| f.write("#{pin}") }
-        File.open(direction_file(pin), "w") { |f| f.write(direction == :out ? "out" : "in") }
-        return pin
-      end
-
-      def direction_file pin
-        "/sys/class/gpio/gpio#{pin}/direction"
-      end
-
-      def value_file pin
-        "/sys/class/gpio/gpio#{pin}/value"
+        @pins[pin] = DigitalPin.new(pin, mode) if @pins[pin].nil? || @pins[pin].mode != mode
+        @pins[pin]
       end
 
       def i2c2_file
