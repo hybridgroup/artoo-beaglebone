@@ -75,6 +75,7 @@ module Artoo
         :P9_31 => 110
       }
       finalizer :finalize, :pins, :i2c
+      attr_reader :pins, :i2c
 
       # Closes connection with device if connected
       # @return [Boolean]
