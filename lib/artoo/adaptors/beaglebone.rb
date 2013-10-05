@@ -74,30 +74,12 @@ module Artoo
         :P9_30 => 112,
         :P9_31 => 110
       }
-      finalizer :finalize
       attr_reader :pins, :i2c
-
-      # Closes connection with device if connected
-      # @return [Boolean]
-      def finalize
-      end
-
-      # Creates a connection with device
-      # @return [Boolean]
-      def connect
-        super
-      end
-
-      # Closes connection with device
-      # @return [Boolean]
-      def disconnect
-        super
-      end
 
       # Name of device
       # @return [String]
       def firmware_name
-        "beaglebone"
+        "Beaglebone"
       end
 
       # Version of device
@@ -121,11 +103,11 @@ module Artoo
       end
 
       def i2c_write *data
-        @i2c.write *data
+        i2c.write *data
       end
 
       def i2c_read len
-        @i2c.read len
+        i2c.read len
       end
 
       private
