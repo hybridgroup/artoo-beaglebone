@@ -77,6 +77,14 @@ module Artoo
       }
       attr_reader :pins, :i2c, :pwm_pins
 
+      # Creates a connection with device
+      # @return [Boolean]
+      def connect
+        @pins = [] if @pins.nil?
+        @pwm_pins = [] if @pwm_pins.nil?
+        super
+      end
+
       # Name of device
       # @return [String]
       def firmware_name
