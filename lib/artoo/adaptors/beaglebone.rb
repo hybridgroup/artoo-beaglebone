@@ -1,5 +1,6 @@
 require 'artoo/adaptors/adaptor'
 require 'artoo/adaptors/io'
+require 'pwm_pin'
 
 module Artoo
   module Adaptors
@@ -74,7 +75,15 @@ module Artoo
         :P9_30 => 112,
         :P9_31 => 110
       }
-      attr_reader :pins, :i2c
+      attr_reader :pins, :i2c, :pwm_pins
+
+      # Creates a connection with device
+      # @return [Boolean]
+      def connect
+        @pins = [] if @pins.nil?
+        @pwm_pins = [] if @pwm_pins.nil?
+        super
+      end
 
       # Name of device
       # @return [String]
@@ -110,6 +119,21 @@ module Artoo
         i2c.read len
       end
 
+      def pwm_write(pin, period, duty=0)
+        pin = pwm_pin(pin)
+        pin.pwm_write(period, duty)
+      end
+
+      def release_pwm(pin)
+        pin = translate_pin(pin)
+        pwm_pins[pin].release
+        pwm_pins[pin] = nil
+      end
+
+      def release_all_pwm_pins
+        pwm_pins.each_value { |pwm_pin| pwm_pin.release }
+      end
+
       private
 
       def translate_pin pin
@@ -125,6 +149,16 @@ module Artoo
         pin = translate_pin pin
         @pins[pin] = DigitalPin.new(pin, mode) if @pins[pin].nil? || @pins[pin].mode != mode
         @pins[pin]
+      end
+
+      def pwm_used?(pin)
+        (pwm_pins[translate_pin(pin)].nil?) ? false : true
+      end
+
+      def pwm_pin(pin)
+        translated_pin = translate_pin(pin)
+        pwm_pins[translated_pin] = PwmPin.new(pin) if pwm_pins[translated_pin].nil?
+        pwm_pins[translated_pin]
       end
 
       def i2c2_file
