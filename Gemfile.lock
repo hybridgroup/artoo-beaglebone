@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    artoo-beaglebone (0.1.0)
+    artoo-beaglebone (0.2.0)
       artoo (>= 1.3.0)
       artoo-gpio
       artoo-i2c
