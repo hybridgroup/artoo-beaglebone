@@ -6,6 +6,8 @@ class PwmPin
     @pin = pin.to_s.upcase
     File.open("#{Dir.glob(SLOTS).first}/slots", "w") { |f|
       f.write("am33xx_pwm")
+    }
+    File.open("#{Dir.glob(SLOTS).first}/slots", "w") { |f|
       f.write('bone_pwm_' + @pin)
     }
     @pwm_device = Dir.glob(Dir.glob("/sys/devices/ocp.*").first+"/pwm_test_" + @pin + ".*").first
