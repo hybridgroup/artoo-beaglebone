@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/hybridgroup/artoo-beaglebone"
   s.summary     = %q{Artoo adaptor for Beaglebone}
   s.description = %q{Artoo adaptor for Beaglebone}
+  s.license     = 'Apache 2.0'
 
   s.rubyforge_project = "artoo-beaglebone"
 
